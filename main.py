@@ -1,57 +1,74 @@
-import shlex
-
-print('Welcome to UNEC Kabinet!')
-print('Use - `help` to see all available commands')
-
 accounts = {}
 
-while True:
-  cmd, *args = shlex.split(input('> '))
-
-  if cmd=='exit':
-    break
-
-  elif cmd=='help':
-    print("Commands:")
-    print(' exit - Exit the program')
-    print(' help - print all available commands')
-    print(' login <username> <password> - login to account')
-    print(' list - list all accounts')
-    print(' delete <username> <password> - delete account')
-    print(' register - create new account')
-
-  elif cmd=='login':
-    if len(args) < 2:
-      print("Usage: login <username> <password>")
+def print_all_accounts():
+    if accounts:
+        for account in accounts:
+            print(f'{account}: {"*" * len(accounts[account])}')
     else:
-      username, password = args
-      if username in accounts and accounts[username] == password:
-        print('Successful login. %s, Welcome!' % username)
-      else:
-        print('Login failed. Invalid username or password')
+        print('Нет сохраненных аккаунтов.')
 
-  elif cmd=='delete':
-    if len(args) < 2:
-      print("Usage: delete <username> <password>")
+def create_account():
+    username = input('Введите имя пользователя: ')
+    password = input('Введите пароль: ')
+    accounts[username] = password
+    print(f'Аккаунт {username} создан.')
+
+def login():
+    global current_user
+    username = input('Введите имя пользователя: ')
+    password = input('Введите пароль: ')
+    if username in accounts and accounts[username] == password:
+        current_user = username
+        print(f'Вы вошли в систему как {current_user}.')
     else:
-      username, password = args
-      if username in accounts and accounts[username] == password:
+        print('Неверное имя пользователя или пароль.')
+
+def logout():
+    global current_user
+    if current_user is not None:
+        current_user = None
+        print('Вы вышли из системы.')
+    else:
+        print('Нельзя выйти из системы, так как не были в ней залогинены.')
+
+def delete_account():
+    username = input('Введите имя пользователя, которого нужно удалить: ')
+    if username in accounts:
         del accounts[username]
-        print('Account "%s" successfully deleted!' % username)
-      else:
-        print('Delete failed. Invalid username or password')
+        print(f'Аккаунт {username} удален.')
+    else:
+        print(f'Аккаунт {username} не найден.')
 
-  elif cmd=='register':
-    new_username = input("Enter new username: ")
-    new_password = input("Enter new password: ")
-    accounts[new_username] = new_password
-    print('Account "%s" successfully created!' % new_username)
-  
-  elif cmd=='list':
-    n = 0
-    for username, password in accounts.items():
-      n += 1
-      print(str(n) + ') ' + username)
+def print_help():
+    print('Доступные команды:')
+    print('create - создать новый аккаунт')
+    print('login - войти в систему')
+    print('logout - выйти из системы')
+    print('list - вывести список всех аккаунтов')
+    print('delete - удалить аккаунт')
+    print('help - вывести список доступных команд')
+    print('exit - выйти из программы')
 
-  else:
-    print('Unknown command: {}'.format(cmd))
+print('Добро пожаловать в нашу систему управления аккаунтами!')
+print_help()
+
+current_user = None
+
+while True:
+    command = input('> ')
+    if command == 'create':
+        create_account()
+    elif command == 'login':
+        login()
+    elif command == 'logout':
+        logout()
+    elif command == 'list':
+        print_all_accounts()
+    elif command == 'delete':
+        delete_account()
+    elif command == 'help':
+        print_help()
+    elif command == 'exit':
+        break
+    else:
+        print('Неизвестная команда. Введите help для получения списка доступных команд.')
